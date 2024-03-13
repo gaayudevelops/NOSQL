@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
 const mongoConnect = require('./util/database').mongoConnect;
+const User = require('./models/user');
 
 const app = express();
 
@@ -19,15 +20,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req,res,next)=>{ // a middleware to store user in a request so that to use it anywhere convinently..
 
-    // User.findByPk(1) // retrieving the user with id= 1
-    // .then(user =>{ // storing the retrieved object as user
+    User.findById('65f15d6f727947bbf230da69') // retrieving the user with id= id of created user
+    .then(user =>{ // storing the retrieved object as user
 
-    //     req.user= user; // user is not a js object but a sequleize object with all of the sequelize properties and functions
-    //     next();
-    // })
-    // .catch(err=>{console.log(err)})
-    next();
-
+        req.user= user; // user is not a js object but a sequleize object with all of the sequelize properties and functions
+        next();
+    })
+    .catch(err=>{console.log(err)})
 })
 
 app.use('/admin', adminRoutes);
