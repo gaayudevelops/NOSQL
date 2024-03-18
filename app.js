@@ -22,8 +22,8 @@ app.use((req,res,next)=>{ // a middleware to store user in a request so that to 
 
     User.findById('65f15d6f727947bbf230da69') // retrieving the user with id= id of created user
     .then(user =>{ // storing the retrieved object as user
-
-        req.user= user; // user is not a js object but a sequleize object with all of the sequelize properties and functions
+        
+        req.user= new User(user.name, user.email, user.cart, user._id); // user is not a js object but a sequleize object with all of the sequelize properties and functions
         next();
     })
     .catch(err=>{console.log(err)})

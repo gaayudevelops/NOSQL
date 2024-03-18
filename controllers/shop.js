@@ -63,40 +63,47 @@ req.user
 exports.postCart = (req, res, next) => {
 
   const prodId = req.body.productId; // getting the id of the particular product
-  let fetchedCart;
-  let newQuantity =1; 
-  req.user
-  .getCart() // getting the cart of the particular user
-  .then(cart =>{
-    fetchedCart= cart;  // the user's cart is stored as fetched cart
-
-    return cart.getProducts({where: { id :prodId}}) // fetching the product with the particular prodId from the cart. getProducts always returns an array
+  Product.findById(prodId)
+  .then(product => {
+    return req.user.addToCart(product);
   })
-  .then(products =>{ // products is the returned array.
-    let product;
-    if(products.length>0){ // if such a product is in the cart already before.
-      product=products[0]; 
-    }
+  .then (result => {
+    console.log(result);
+  })
+  // let fetchedCart;
+  // let newQuantity =1; 
+  // req.user
+  // .getCart() // getting the cart of the particular user
+  // .then(cart =>{
+  //   fetchedCart= cart;  // the user's cart is stored as fetched cart
+
+  //   return cart.getProducts({where: { id :prodId}}) // fetching the product with the particular prodId from the cart. getProducts always returns an array
+  // })
+  // .then(products =>{ // products is the returned array.
+  //   let product;
+  //   if(products.length>0){ // if such a product is in the cart already before.
+  //     product=products[0]; 
+  //   }
    
-    if(product){
+  //   if(product){
 
-      const oldQuantity= product.cartItem.quantity // getting the previous quantity of the product in the cart
-      newQuantity= oldQuantity+1; // increasing the quantity by 1.
-      return product;
+  //     const oldQuantity= product.cartItem.quantity // getting the previous quantity of the product in the cart
+  //     newQuantity= oldQuantity+1; // increasing the quantity by 1.
+  //     return product;
 
-    }
-    return Product.findByPk(prodId)// if the product is not in the cart before the product is searched in the product table
-  })
-    .then(product =>{
-      return fetchedCart.addProduct(product, 
-        { through : {quantity : newQuantity}}) // adding the product from the product table to the cart by changing its quantity to 1
-    })
+  //   }
+  //   return Product.findByPk(prodId)// if the product is not in the cart before the product is searched in the product table
+  // })
+  //   .then(product =>{
+  //     return fetchedCart.addProduct(product, 
+  //       { through : {quantity : newQuantity}}) // adding the product from the product table to the cart by changing its quantity to 1
+  //   })
 
-  .then(()=>{
-    res.redirect('/cart')
+  // .then(()=>{
+  //   res.redirect('/cart')
 
-  })
-  .catch(err => {console.log(err)})
+  // })
+  // .catch(err => {console.log(err)})
 
   
 };
