@@ -61,7 +61,6 @@ class User {
       })
       //As a result of the mapping the new array returned is [ {product, quantity: (as per in the cart)} ]
     })
-    .catch(err => {console.log(err);});
   }
 
   deleteItemfromcart(productId){
@@ -76,6 +75,35 @@ class User {
 
   }
 
+  addOrder(){
+    const db = getdb();
+    return this.getCart()
+    .then(products =>{
+      const order = {
+        items: products,
+        user:{
+          _id: new ObjectId(this._id),
+          name: this.name
+        }
+      };
+      return db.collection('orders').insertOne(order)
+    })
+    .then(result =>{
+      this.cart = {items: [] };
+      return db.collection('users').updateOne(
+        { _id : new ObjectId(this._id) },
+        { $set : {cart: {items : []} }}
+     );
+    })
+
+  }
+
+  getOrders(){
+    const db = getdb();
+    return db.collection('orders').find({ 'user._id': new ObjectId(this._id)}) //In mongodb we can also check nested properties by defining the path to them. Use quotation mark around the path.
+    .toArray()
+  }
+
   static findById(userId) {
     const db = getdb();
     return db.collection('users')
@@ -83,9 +111,6 @@ class User {
     .then(user => {
       return user;
     })
-    .catch(err => {
-      console.log(err);
-    });
   }
 
 }
