@@ -41,6 +41,41 @@ class User {
    );
   }
 
+  getCart(){
+    const db = getdb();
+    const productIds = this.cart.items.map(i => { // map() returns a new array by mapping the function operation to the items array
+      return i.productId //gets an array of product ids that corresponds to the products that was added in the cart.
+    });
+  
+    return db.collection('products')
+    .find({ _id: {$in : productIds}}) //  the 'in' query operator looks for the ids in the productIds array.
+    .toArray()
+    .then(products =>{
+      return products.map(p => {
+        return {
+          ...p,
+          quantity: this.cart.items.find(i => { // 'this' workd only because the mapped function is an arrow function.For normal functions 'this' would not have reference to the class.
+          return i.productId.toString() === p._id.toString();
+          }).quantity
+        }
+      })
+      //As a result of the mapping the new array returned is [ {product, quantity: (as per in the cart)} ]
+    })
+    .catch(err => {console.log(err);});
+  }
+
+  deleteItemfromcart(productId){
+    const UpdatedCartItems = this.cart.items.filter( item =>{  //filter() returns an array
+      return item.productId.toString() !== productId.toString();
+    });
+    const db = getdb();
+    return db.collection('users').updateOne(
+      { _id : new ObjectId(this._id) },
+      { $set : {cart: {items : UpdatedCartItems} }}
+   );
+
+  }
+
   static findById(userId) {
     const db = getdb();
     return db.collection('users')
