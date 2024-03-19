@@ -85,8 +85,9 @@ exports.postOrder = (req, res, next) => {
   populate('cart.items.productId') // populates the productId filed with data from the Products model.
   .then(user=> {
     const products = user.cart.items.map(i=> {
-      return {product: i.productId, quantity: i.quantity}
+      return {product: {...i.productId._doc }, quantity: i.quantity} //_doc gives the whole data in the object 
     });
+    // console.log(products)
     // console.log(user.cart.items)
     const order = new Order({
       user:{
@@ -98,14 +99,16 @@ exports.postOrder = (req, res, next) => {
     return order.save()
   })
   .then(result => {
+    return req.user.clearCart()
+  })
+  .then(()=> {
     res.redirect('/orders');
   })
   .catch(err => {console.log(err)});
 };
 
 exports.getOrders = (req, res, next) => {
-  req.user.
-  getOrders()
+  Order.find({'user.userId': req.user._id})
   .then(orders =>{
     res.render('shop/orders', {
       path: '/orders',
