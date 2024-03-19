@@ -21,6 +21,27 @@ const userSchema = new Schema({
  }
 });
 
+userSchema.methods.addToCart = function(product){
+
+  const cartProductIndex = this.cart.items.findIndex(cp => {
+      return cp.productId.toString() === product._id.toString();
+  });
+    
+  let newQuantity = 1;
+  let updatedCartItems = [...this.cart.items];
+  if (cartProductIndex >= 0) {
+    newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+    updatedCartItems[cartProductIndex].quantity = newQuantity;
+  } else {
+    updatedCartItems.push({ productId: (product._id), quantity: newQuantity });//storing only the reference as if there's any change in price and tittle it should reflect 
+    //or else if the product itself is stored no updation of the product would be visible in the cart
+  }
+  const updatedCart = { items: updatedCartItems };
+  this.cart = updatedCart;
+  return this.save();
+  
+}
+
 module.exports = mongoose.model('User',userSchema);
 
 

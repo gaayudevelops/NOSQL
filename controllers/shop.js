@@ -43,8 +43,10 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user.
-  getCart()
-  .then(products=> {
+  populate('cart.items.productId') // populates the productId filed with data from the Products model.
+  .then(user=> {
+    // console.log(user.cart.items)
+    products = user.cart.items;
     res.render('shop/cart', {
       products: products,
       pageTitle: 'Your Cart',
