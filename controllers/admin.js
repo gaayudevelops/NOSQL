@@ -16,7 +16,14 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product({title: title, imageUrl: imageUrl, price: price, description: description});
+  console.log(req.user)
+  const product = new Product({
+    title: title, 
+    imageUrl: imageUrl, 
+    price: price, 
+    description: description,
+    userId: req.user // mongoose gives that convenience to store the entire user object and mongoose will just pick the id from this object.
+  });
 
   product.save() // Here .save() comes from mongoose but doesnt give a promise technically.
 
@@ -74,7 +81,13 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
 Product.find()
+//.select('title price -_id') // Upon 'console.log(products)', this utility fn of mongoose helps us to find which field we need to select and unselect from the database. _id always shows up unless it is explicitely excluded.
+// here, title, price are selected to display and _id is unselected with a '-'. 
+
+//.populate('userId', 'name') // a utility method provided by mongoose to populate a certain field upon 'console.log(products)' with all detailed information not just an id.
+// if given a second field too, for eg: name, the data will only be populated with the given field. 
   .then(products =>{
+    // console.log(products)
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
