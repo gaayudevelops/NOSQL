@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-// const Cart = require('../models/cart');
+const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
   Product.find() //mongoose has the find() method to give the products in an array.
@@ -82,7 +82,21 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
   req.user.
-  addOrder()
+  populate('cart.items.productId') // populates the productId filed with data from the Products model.
+  .then(user=> {
+    const products = user.cart.items.map(i=> {
+      return {product: i.productId, quantity: i.quantity}
+    });
+    // console.log(user.cart.items)
+    const order = new Order({
+      user:{
+        name: req.user.name,
+        userId: req.user._id 
+      },
+      products: products
+    });
+    return order.save()
+  })
   .then(result => {
     res.redirect('/orders');
   })
