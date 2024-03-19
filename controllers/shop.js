@@ -2,7 +2,7 @@ const Product = require('../models/product');
 // const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find() //mongoose has the find() method to give the products in an array.
   .then(products =>{
     res.render('shop/product-list', {
       prods: products,
@@ -16,7 +16,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  Product.findById(prodId)
+  Product.findById(prodId) //Here findById() is a built-in mongoose method.We can actually pass a string 
+  //which will be converted to ObjectId by mongoose itself.
   .then(product=>{
     res.render('shop/product-detail', {
       product: product,
@@ -29,7 +30,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
   .then(products=> {
     res.render('shop/index', {
       prods: products,

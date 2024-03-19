@@ -16,22 +16,15 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-    );
-  product.
-  save()
-  .then((result)=>{
+  const product = new Product({title: title, imageUrl: imageUrl, price: price, description: description});
+
+  product.save() // Here .save() comes from mongoose but doesnt give a promise technically.
+
+  .then((result)=>{ //mongoose gives .then() and .cathch() methods too 
     console.log('Created Product');
     res.redirect('/admin/products');
   })
   .catch(err => console.log(err));
-  
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -62,14 +55,15 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const product = new Product (
-    updatedTitle, 
-    updatedPrice, 
-    updatedDesc, 
-    updatedImageUrl, 
-    new ObjectId(prodId)
-    )
-    product.save()
+  
+  Product.findById(prodId)
+  .then(product =>{ // Here the product is a mongoose object that has all the mongoose methods associated with it.
+    product.title = updatedTitle;
+    product.price = updatedPrice;
+    product.imageUrl = updatedImageUrl;
+    product.description = updatedDesc;
+    return product.save();
+  })
   .then(result =>{
     console.log('Updated Product');
     res.redirect('/admin/products');
@@ -79,7 +73,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-Product.fetchAll()
+Product.find()
   .then(products =>{
     res.render('admin/products', {
       prods: products,
@@ -93,8 +87,8 @@ Product.fetchAll()
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId)
-  .then( ()=>{
+  Product.findByIdAndDelete(prodId)
+  .then(()=>{
     console.log('Product Deleted');
     res.redirect('/admin/products')
   })
